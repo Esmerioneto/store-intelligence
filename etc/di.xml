@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <preference for="Egsn\StoreIntelligence\Api\AiProviderInterface"
+                type="Egsn\StoreIntelligence\Model\AiProvider\ClaudeProvider"/>
+
+    <preference for="Egsn\StoreIntelligence\Api\RunAnalysisInterface"
+                type="Egsn\StoreIntelligence\Model\Api\RunAnalysis"/>
+
+    <preference for="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface"
+                type="Egsn\StoreIntelligence\Model\AnalysisRepository"/>
+
+    <preference for="Egsn\StoreIntelligence\Api\Data\AnalysisResponseInterface"
+                type="Egsn\StoreIntelligence\Model\AiProvider\AnalysisResponse"/>
+
+    <type name="Egsn\StoreIntelligence\Model\AiProvider\ProviderPool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="claude"  xsi:type="object">Egsn\StoreIntelligence\Model\AiProvider\ClaudeProvider</item>
+                <item name="openai"  xsi:type="object">Egsn\StoreIntelligence\Model\AiProvider\OpenAiProvider</item>
+                <item name="gemini"  xsi:type="object">Egsn\StoreIntelligence\Model\AiProvider\GeminiProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Egsn\StoreIntelligence\Model\CollectorPool">
+        <arguments>
+            <argument name="collectors" xsi:type="array">
+                <item name="opcache"             xsi:type="object">Egsn\StoreIntelligence\Collector\Performance\OpcacheCollector</item>
+                <item name="cache_hit_ratio"     xsi:type="object">Egsn\StoreIntelligence\Collector\Performance\CacheHitRatioCollector</item>
+                <item name="slow_queries"        xsi:type="object">Egsn\StoreIntelligence\Collector\Performance\SlowQueriesCollector</item>
+                <item name="unoptimized_images"  xsi:type="object">Egsn\StoreIntelligence\Collector\Performance\UnoptimizedImagesCollector</item>
+                <item name="js_css_minification" xsi:type="object">Egsn\StoreIntelligence\Collector\Performance\JsCssMinificationCollector</item>
+                <item name="page_load_time"      xsi:type="object">Egsn\StoreIntelligence\Collector\Performance\PageLoadTimeCollector</item>
+                <item name="module_performance"  xsi:type="object">Egsn\StoreIntelligence\Collector\Performance\ModulePerformanceCollector</item>
+                <item name="exception_log"       xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\ExceptionLogCollector</item>
+                <item name="system_log"          xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\SystemLogCollector</item>
+                <item name="missing_images_404"  xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\Missing404ImagesCollector</item>
+                <item name="broken_links"        xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\BrokenLinksCollector</item>
+                <item name="failed_payments"     xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\FailedPaymentsCollector</item>
+                <item name="cron_failures"       xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\CronFailuresCollector</item>
+                <item name="email_queue"         xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\EmailQueueCollector</item>
+                <item name="integration_errors"  xsi:type="object">Egsn\StoreIntelligence\Collector\Errors\IntegrationErrorsCollector</item>
+                <item name="abandoned_carts"          xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\AbandonedCartsCollector</item>
+                <item name="zero_result_searches"     xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\ZeroResultSearchesCollector</item>
+                <item name="checkout_funnel"          xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\CheckoutFunnelCollector</item>
+                <item name="missing_image"            xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\ProductsMissingImageCollector</item>
+                <item name="missing_description"      xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\ProductsMissingDescriptionCollector</item>
+                <item name="empty_categories"         xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\EmptyCategoriesCollector</item>
+                <item name="expired_coupons"          xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\ExpiredCouponsCollector</item>
+                <item name="price_below_cost"         xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\PriceBelowCostCollector</item>
+                <item name="out_of_stock"             xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\OutOfStockCollector</item>
+                <item name="no_sales"                 xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\NoSalesCollector</item>
+                <item name="cross_sell_opportunities" xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\CrossSellOpportunitiesCollector</item>
+                <item name="inactive_customers"       xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\InactiveCustomersCollector</item>
+                <item name="least_viewed"             xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\LeastViewedProductsCollector</item>
+                <item name="top_selling"              xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\TopSellingProductsCollector</item>
+                <item name="negative_reviews"         xsi:type="object">Egsn\StoreIntelligence\Collector\Sales\NegativeReviewsCollector</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="egsn_si_selfcheck" xsi:type="object">Egsn\StoreIntelligence\Console\Command\SelfCheckCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

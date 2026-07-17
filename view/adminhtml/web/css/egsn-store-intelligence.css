@@ -1,0 +1,488 @@
+/**
+ * Esmerio Neto
+ *
+ * NOTICE OF LICENSE
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future.
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ *
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ *
+ * @author Esmerio Neto <esmerioneto@gmail.com>
+ */
+
+/* =====================================================================
+   Egsn StoreIntelligence — Admin Styles
+   Cobre: dashboard, history, recommendations, recommendation_view
+   ===================================================================== */
+
+/* --- Layout geral --- */
+.si-dashboard,
+.si-history,
+.si-rec-page,
+.si-rv {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 20px;
+    max-width: 1200px;
+}
+
+.si-rv { max-width: 960px; }
+
+/* --- Cards e rows (dashboard) --- */
+.si-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.si-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+    flex: 1;
+    min-width: 260px;
+}
+
+.si-card h3 {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+/* Variantes de tamanho dos cards */
+.si-card--narrow  { flex: 0 0 220px; }
+.si-card--wide    { flex: 2 1 340px; }
+.si-card--actions {
+    flex: 0 0 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.si-card--chart { flex: 2 1 400px; }
+
+/* --- Score no dashboard --- */
+.si-score-value {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* --- Badges genéricos --- */
+.si-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.si-score-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+}
+
+/* --- Cores semânticas: score (número grande) --- */
+.si-score-value.si-score--good     { color: #2d7a2d; }
+.si-score-value.si-score--warning  { color: #856404; }
+.si-score-value.si-score--critical { color: #721c24; }
+.si-score-value.si-score--na       { color: #aaa; }
+
+/* --- Cores semânticas: score pill (badge abaixo do número) --- */
+.si-score-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.si-score-pill.si-score--good     { background: #d4edda; color: #2d7a2d; }
+.si-score-pill.si-score--warning  { background: #fff3cd; color: #856404; }
+.si-score-pill.si-score--critical { background: #f8d7da; color: #721c24; }
+.si-score-pill.si-score--na       { background: #ccc;    color: #aaa; }
+
+/* --- Cores semânticas: score badge (tabela history) --- */
+.si-score-badge.si-score--good     { background: #d4edda; color: #155724; }
+.si-score-badge.si-score--warning  { background: #fff3cd; color: #856404; }
+.si-score-badge.si-score--critical { background: #f8d7da; color: #721c24; }
+.si-score-badge.si-score--na       { background: #e9ecef; color: #6c757d; }
+
+/* --- Cores semânticas: prioridade de recomendação --- */
+.si-priority--critical    { background: #f8d7da; color: #721c24; }
+.si-priority--warning     { background: #fff3cd; color: #856404; }
+.si-priority--improvement { background: #cce5ff; color: #004085; }
+
+/* --- Cores semânticas: status de análise (history) --- */
+.si-status--completed { background: #d4edda; color: #155724; }
+.si-status--running   { background: #cce5ff; color: #004085; }
+.si-status--failed    { background: #f8d7da; color: #721c24; }
+.si-status--pending   { background: #e9ecef; color: #6c757d; }
+
+/* --- Summary box (resumo da IA) --- */
+.si-summary-box {
+    background: #f9f9f9;
+    border-left: 3px solid #1979c3;
+    padding: 12px 16px;
+    border-radius: 0 4px 4px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* --- Lista de recomendações no dashboard (top 5) --- */
+.si-rec-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.si-rec-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.si-rec-list li:last-child { border-bottom: none; }
+
+.si-pri-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.si-rec-title {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.4;
+}
+
+/* --- Gráfico de evolução --- */
+.si-chart-wrap {
+    position: relative;
+    height: 200px;
+}
+
+/* --- Botão principal "Analisar Agora" --- */
+.si-run-btn {
+    display: inline-block;
+    padding: 10px 22px;
+    background: #1979c3;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.si-run-btn:hover    { background: #135e99; }
+.si-run-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+/* --- Mensagem de feedback (run/dismiss) --- */
+.si-msg {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    display: none;
+}
+
+.si-msg.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.si-msg.error   { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+/* --- Metadados e auxiliares --- */
+.si-meta  { font-size: 12px; color: #888; margin-top: 6px; }
+.si-empty { color: #aaa; font-size: 13px; font-style: italic; }
+
+/* --- Headings das páginas --- */
+.si-dashboard h2,
+.si-history h2,
+.si-rec-page h2 {
+    margin: 0 0 20px;
+    font-size: 20px;
+    color: #333;
+}
+
+/* --- Filtros (recommendations) --- */
+.si-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 18px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 14px 16px;
+}
+
+.si-filters label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.si-filters select {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 140px;
+}
+
+.si-filters button {
+    padding: 7px 18px;
+    background: #1979c3;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-end;
+}
+
+.si-filters button:hover { background: #135e99; }
+
+.si-filters a.si-reset {
+    padding: 7px 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #555;
+    text-decoration: none;
+    align-self: flex-end;
+}
+
+.si-filters a.si-reset:hover { background: #f5f5f5; }
+
+/* --- Tabelas --- */
+.si-table-wrap {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+.si-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.si-table th {
+    background: #f5f5f5;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+}
+
+.si-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    vertical-align: middle;
+}
+
+.si-table th.si-table-action { width: 100px; text-align: center; }
+.si-table td.si-table-action { text-align: center; }
+
+.si-table tbody tr:last-child td               { border-bottom: none; }
+.si-table tbody tr:hover td                    { background: #fafafa; }
+.si-table tbody tr.si-dismissed td             { opacity: .45; text-decoration: line-through; }
+
+/* --- Botão dispensar --- */
+.si-dismiss-btn {
+    padding: 4px 12px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+}
+
+.si-dismiss-btn:hover    { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+.si-dismiss-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* --- Impacto estimado --- */
+.si-impact { font-size: 12px; color: #666; max-width: 300px; }
+
+/* --- Paginação --- */
+.si-pagination {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 14px;
+    border-top: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+
+.si-pagination a,
+.si-pagination span {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #1979c3;
+    text-decoration: none;
+}
+
+.si-pagination span.current { background: #1979c3; color: #fff; border-color: #1979c3; }
+.si-pagination a:hover       { background: #f0f7ff; }
+
+/* --- Contador de itens --- */
+.si-summary-row { margin: 0 0 14px; font-size: 13px; color: #666; }
+
+/* --- Link de detalhe --- */
+.si-detail-link       { color: #1979c3; text-decoration: none; font-size: 12px; }
+.si-detail-link:hover { text-decoration: underline; }
+
+/* =====================================================================
+   Recommendation View (.si-rv)
+   ===================================================================== */
+.si-rv-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.si-rv-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin: 0;
+}
+
+.si-rv-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .07);
+}
+
+.si-rv-card h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #888;
+}
+
+.si-rv-card p { margin: 0; color: #333; font-size: 14px; line-height: 1.6; }
+
+.si-rv-meta {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.si-rv-meta-item        { font-size: 13px; color: #555; }
+.si-rv-meta-item strong { color: #333; }
+
+.si-rv-action {
+    background: #f0f7ff;
+    border: 1px solid #b3d1f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 18px;
+}
+
+.si-rv-action h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #1979c3;
+}
+
+.si-rv-action p { margin: 0; color: #1a3d5c; font-size: 14px; line-height: 1.6; font-weight: 500; }
+
+.si-rv-impact {
+    background: #f9f9f9;
+    border-left: 4px solid #1979c3;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    border-radius: 0 6px 6px 0;
+}
+
+.si-rv-impact p { margin: 0; color: #444; font-size: 13px; }
+
+.si-rv-grid            { overflow-x: auto; margin-bottom: 18px; }
+.si-rv-grid table      { width: 100%; border-collapse: collapse; font-size: 13px; background: #fff; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+.si-rv-grid th         { background: #f5f5f5; text-align: left; padding: 9px 14px; font-weight: 600; color: #555; border-bottom: 2px solid #ddd; }
+.si-rv-grid td         { padding: 8px 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
+.si-rv-grid tbody tr:last-child td { border-bottom: none; }
+.si-rv-grid tbody tr:hover td      { background: #fafafa; }
+
+.si-rv-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+
+.si-rv-btn {
+    display: inline-block;
+    padding: 9px 20px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+}
+
+.si-rv-btn-dismiss       { background: #fff; border: 1px solid #ccc; color: #555; }
+.si-rv-btn-dismiss:hover { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+.si-rv-btn-export        { background: #1979c3; color: #fff; }
+.si-rv-btn-export:hover  { background: #135e99; }
+
+.si-rv-btn-back       { color: #1979c3; text-decoration: none; font-size: 13px; }
+.si-rv-btn-back:hover { text-decoration: underline; }
+
+.si-rv-back-wrap { margin-top: 20px; }
+
+.si-rv-empty { color: #aaa; font-style: italic; font-size: 13px; }
+
+/* Diff entre análises (dashboard) */
+.si-diff-section { margin-top: 10px; line-height: 2; }
+.si-diff-section .si-pri-badge { margin-right: 4px; }

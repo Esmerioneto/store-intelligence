@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <egsn_si>
+            <general>
+                <enabled>1</enabled>
+                <ai_provider>claude</ai_provider>
+                <ai_model_claude>claude-sonnet-4-6</ai_model_claude>
+                <ai_model_openai>gpt-4o</ai_model_openai>
+            </general>
+            <schedule>
+                <enabled>1</enabled>
+                <frequency>daily</frequency>
+                <window_start>01:00</window_start>
+                <window_end>05:00</window_end>
+            </schedule>
+            <thresholds>
+                <no_sales_days>90</no_sales_days>
+                <inactive_customers_months>12</inactive_customers_months>
+                <large_image_kb>200</large_image_kb>
+                <abandoned_cart_hours>2</abandoned_cart_hours>
+                <slow_query_seconds>1</slow_query_seconds>
+                <sample_size>10000</sample_size>
+                <collector_timeout_performance>30</collector_timeout_performance>
+                <collector_timeout_errors>20</collector_timeout_errors>
+                <collector_timeout_sales>60</collector_timeout_sales>
+                <global_timeout_minutes>10</global_timeout_minutes>
+            </thresholds>
+            <cleanup>
+                <enabled>1</enabled>
+                <retention_days>90</retention_days>
+            </cleanup>
+            <email>
+                <enabled>0</enabled>
+                <frequency>same</frequency>
+                <condition>critical</condition>
+            </email>
+            <webhook>
+                <enabled>0</enabled>
+            </webhook>
+        </egsn_si>
+    </default>
+</config>

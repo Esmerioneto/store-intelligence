@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="admin">
+        <route id="egsn_si" frontName="egsn_si">
+            <module name="Egsn_StoreIntelligence" before="Magento_Backend"/>
+        </route>
+    </router>
+</config>

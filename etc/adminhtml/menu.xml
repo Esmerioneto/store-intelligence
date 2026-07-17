@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Egsn_StoreIntelligence::egsn"
+             title="Egsn"
+             module="Egsn_StoreIntelligence"
+             sortOrder="999"
+             resource="Magento_Backend::admin"/>
+        <add id="Egsn_StoreIntelligence::menu"
+             title="Store Intelligence"
+             module="Egsn_StoreIntelligence"
+             sortOrder="20"
+             parent="Egsn_StoreIntelligence::egsn"
+             resource="Egsn_StoreIntelligence::menu"/>
+        <add id="Egsn_StoreIntelligence::si_dashboard"
+             title="Dashboard"
+             module="Egsn_StoreIntelligence"
+             sortOrder="10"
+             parent="Egsn_StoreIntelligence::menu"
+             action="egsn_si/dashboard/index"
+             resource="Egsn_StoreIntelligence::dashboard"/>
+        <add id="Egsn_StoreIntelligence::history"
+             title="History"
+             module="Egsn_StoreIntelligence"
+             sortOrder="20"
+             parent="Egsn_StoreIntelligence::menu"
+             action="egsn_si/history/index"
+             resource="Egsn_StoreIntelligence::history"/>
+        <add id="Egsn_StoreIntelligence::recommendations"
+             title="Recommendations"
+             module="Egsn_StoreIntelligence"
+             sortOrder="30"
+             parent="Egsn_StoreIntelligence::menu"
+             action="egsn_si/recommendations/index"
+             resource="Egsn_StoreIntelligence::recommendations"/>
+    </menu>
+</config>

@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Egsn_StoreIntelligence::menu" title="Store Intelligence" sortOrder="100">
+                    <resource id="Egsn_StoreIntelligence::dashboard" title="Dashboard"/>
+                    <resource id="Egsn_StoreIntelligence::history" title="Histórico"/>
+                    <resource id="Egsn_StoreIntelligence::recommendations" title="Recomendações"/>
+                    <resource id="Egsn_StoreIntelligence::config" title="Configurações"/>
+                    <resource id="Egsn_StoreIntelligence::api" title="API Access"/>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

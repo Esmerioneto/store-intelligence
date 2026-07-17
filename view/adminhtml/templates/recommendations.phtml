@@ -1,0 +1,180 @@
+<?php
+/**
+ * Copyright © 2026 Esmerio Neto. All rights reserved.
+ *
+ * @var \Egsn\StoreIntelligence\Block\Adminhtml\Recommendations $block
+ */
+declare(strict_types=1);
+
+$request    = $block->getRequest();
+$priority   = (string)($request->getParam('priority', ''));
+$category   = (string)($request->getParam('category', ''));
+$page       = max(1, (int)($request->getParam('page', 1)));
+$dismissUrl = $escaper->escapeUrl($block->getDismissUrl());
+
+$result   = $block->getRecommendations($priority, $category, $page);
+$items    = $result['items'] ?? [];
+$total    = (int)($result['total'] ?? 0);
+$pageSize = (int)($result['page_size'] ?? 20);
+$pages    = $pageSize > 0 ? (int)ceil($total / $pageSize) : 1;
+
+$priorityStyles = [
+    'critical'    => ['class' => 'si-priority--critical',    'label' => __('Critical')],
+    'warning'     => ['class' => 'si-priority--warning',     'label' => __('Warning')],
+    'improvement' => ['class' => 'si-priority--improvement', 'label' => __('Improvement')],
+];
+
+$categoryLabels = [
+    'performance' => __('Performance'),
+    'errors'      => __('Errors'),
+    'sales'       => __('Sales'),
+];
+?>
+<div class="si-rec-page"
+     id="si-rec-page"
+     data-dismiss-url="<?= $escaper->escapeUrl($block->getDismissUrl()) ?>"
+     data-form-key="<?= $escaper->escapeHtml($block->getFormKey()) ?>">
+
+    <h2><?= $escaper->escapeHtml(__('Store Intelligence — Recommendations')) ?></h2>
+
+    <!-- Filtros -->
+    <form class="si-filters" method="get" id="si-filter-form">
+        <input type="hidden" name="page" value="1"/>
+        <label>
+            <?= $escaper->escapeHtml(__('Priority')) ?>
+            <select name="priority">
+                <option value=""><?= $escaper->escapeHtml(__('All')) ?></option>
+                <option value="critical" <?= $priority === 'critical' ? 'selected' : '' ?>>
+                    <?= $escaper->escapeHtml(__('Critical')) ?></option>
+                <option value="warning" <?= $priority === 'warning' ? 'selected' : '' ?>>
+                    <?= $escaper->escapeHtml(__('Warning')) ?></option>
+                <option value="improvement" <?= $priority === 'improvement' ? 'selected' : '' ?>>
+                    <?= $escaper->escapeHtml(__('Improvement')) ?></option>
+            </select>
+        </label>
+        <label>
+            <?= $escaper->escapeHtml(__('Category')) ?>
+            <select name="category">
+                <option value=""><?= $escaper->escapeHtml(__('All')) ?></option>
+                <option value="performance" <?= $category === 'performance' ? 'selected' : '' ?>>
+                    <?= $escaper->escapeHtml(__('Performance')) ?></option>
+                <option value="errors" <?= $category === 'errors' ? 'selected' : '' ?>>
+                    <?= $escaper->escapeHtml(__('Errors')) ?></option>
+                <option value="sales" <?= $category === 'sales' ? 'selected' : '' ?>>
+                    <?= $escaper->escapeHtml(__('Sales')) ?></option>
+            </select>
+        </label>
+        <button type="submit"><?= $escaper->escapeHtml(__('Filter')) ?></button>
+        <?php if ($priority !== '' || $category !== ''): ?>
+            <a class="si-reset" href="?"><?= $escaper->escapeHtml(__('Clear filters')) ?></a>
+        <?php endif; ?>
+    </form>
+
+    <?php if ($total > 0): ?>
+        <p class="si-summary-row">
+            <?= $escaper->escapeHtml(__(
+                'Showing %1–%2 of %3 recommendation(s).',
+                (int)(($page - 1) * $pageSize + 1),
+                (int) min($page * $pageSize, $total),
+                (int) $total
+            )) ?>
+        </p>
+    <?php endif; ?>
+
+    <div class="si-table-wrap">
+        <?php if (empty($items)): ?>
+            <?php $emptyMsg = ($priority !== '' || $category !== '')
+                ? __('No recommendations found for the selected filters.')
+                : __('No recommendations found.'); ?>
+            <div class="si-empty"><?= $escaper->escapeHtml($emptyMsg) ?></div>
+        <?php else: ?>
+            <table class="si-table">
+                <thead>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('Analysis')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Priority')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Category')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Title')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Impact')) ?></th>
+                        <th class="si-table-action"><?= $escaper->escapeHtml(__('Action')) ?></th>
+                    </tr>
+                </thead>
+                <tbody id="si-rec-table-body">
+                    <?php foreach ($items as $rec): ?>
+                        <?php
+                            $pri    = $rec['priority'] ?? 'improvement';
+                            $priSt  = $priorityStyles[$pri] ?? $priorityStyles['improvement'];
+                            $cat    = $rec['category'] ?? '';
+                            $catLbl = $categoryLabels[$cat] ?? $escaper->escapeHtml($cat);
+                        ?>
+                        <tr id="si-rec-row-<?= (int)$rec['id'] ?>">
+                            <td>#<?= (int)($rec['analysis_id'] ?? 0) ?></td>
+                            <td>
+                                <span class="si-badge <?= $escaper->escapeHtml($priSt['class']) ?>">
+                                    <?= $escaper->escapeHtml($priSt['label']) ?>
+                                </span>
+                            </td>
+                            <td><?= $escaper->escapeHtml($catLbl) ?></td>
+                            <td>
+                                <?php $viewUrl = $block->getUrl(
+                                    'egsn_si/recommendations/view',
+                                    ['id' => (int)$rec['id']]
+                                ); ?>
+                                <a href="<?= $escaper->escapeUrl($viewUrl) ?>">
+                                    <?= $escaper->escapeHtml((string)($rec['title'] ?? '')) ?>
+                                </a>
+                            </td>
+                            <td class="si-impact">
+                                <?= $escaper->escapeHtml((string)($rec['estimated_impact'] ?? '')) ?>
+                            </td>
+                            <td class="si-table-action">
+                                <button class="si-dismiss-btn"
+                                        type="button"
+                                        data-id="<?= (int)$rec['id'] ?>">
+                                    <?= $escaper->escapeHtml(__('Dismiss')) ?>
+                                </button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <?php if ($pages > 1): ?>
+                <div class="si-pagination">
+                    <?php
+                        $buildUrl = static function (int $p) use ($priority, $category): string {
+                            $q = http_build_query(array_filter(
+                                ['priority' => $priority, 'category' => $category, 'page' => $p]
+                            ));
+                            return '?' . $q;
+                        };
+    ?>
+                    <?php if ($page > 1): ?>
+                        <a href="<?= $escaper->escapeUrl($buildUrl($page - 1)) ?>">&lsaquo;
+                            <?= $escaper->escapeHtml(__('Previous')) ?></a>
+                    <?php endif; ?>
+                    <?php $lastPage = min($pages, $page + 2); ?>
+                    <?php for ($p = max(1, $page - 2); $p <= $lastPage; $p++): ?>
+                        <?php if ($p === $page): ?>
+                            <span class="current"><?= (int) $p ?></span>
+                        <?php else: ?>
+                            <a href="<?= $escaper->escapeUrl($buildUrl($p)) ?>"><?= (int) $p ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                    <?php if ($page < $pages): ?>
+                        <a href="<?= $escaper->escapeUrl($buildUrl($page + 1)) ?>">
+                            <?= $escaper->escapeHtml(__('Next')) ?> &rsaquo;</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<script type="text/x-magento-init">
+{
+    "#si-rec-page": {
+        "Egsn_StoreIntelligence/js/recommendations": {}
+    }
+}
+</script>

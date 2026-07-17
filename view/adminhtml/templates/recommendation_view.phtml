@@ -1,0 +1,126 @@
+<?php
+/**
+ * Copyright © 2026 Esmerio Neto. All rights reserved.
+ *
+ * @var \Egsn\StoreIntelligence\Block\Adminhtml\RecommendationView $block
+ */
+declare(strict_types=1);
+
+$rec        = $block->getRecommendation();
+$items      = $block->getCollectorItems();
+$exportUrl  = $escaper->escapeUrl($block->getExportUrl());
+$backUrl    = $escaper->escapeUrl($block->getUrl('egsn_si/recommendations/index'));
+$recId      = (int)($rec['id'] ?? 0);
+
+$priorityStyles = [
+    'critical'    => ['class' => 'si-priority--critical',    'label' => __('Critical')],
+    'warning'     => ['class' => 'si-priority--warning',     'label' => __('Warning')],
+    'improvement' => ['class' => 'si-priority--improvement', 'label' => __('Improvement')],
+];
+
+$priority = $rec['priority'] ?? 'improvement';
+$priSt    = $priorityStyles[$priority] ?? $priorityStyles['improvement'];
+?>
+<div class="si-rv"
+     id="si-rv"
+     data-dismiss-url="<?= $escaper->escapeUrl($block->getDismissUrl()) ?>"
+     data-form-key="<?= $escaper->escapeHtml($block->getFormKey()) ?>">
+
+    <?php if (empty($rec)): ?>
+        <p class="si-rv-empty"><?= $escaper->escapeHtml(__('Recommendation not found.')) ?></p>
+    <?php else: ?>
+        <div class="si-rv-header">
+            <span class="si-badge <?= $escaper->escapeHtml($priSt['class']) ?>">
+                <?= $escaper->escapeHtml($priSt['label']) ?>
+            </span>
+            <h1 class="si-rv-title"><?= $escaper->escapeHtml((string)($rec['title'] ?? '')) ?></h1>
+        </div>
+
+        <div class="si-rv-meta">
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('Category:')) ?></strong>
+                <?= $escaper->escapeHtml(ucfirst((string)($rec['category'] ?? ''))) ?>
+            </div>
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('Collector:')) ?></strong>
+                <?= $escaper->escapeHtml((string)($rec['collector'] ?? '')) ?>
+            </div>
+            <?php if (!empty($rec['analysis_id'])): ?>
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('Analysis #:')) ?></strong>
+                <?= (int)$rec['analysis_id'] ?>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="si-rv-card">
+            <h3><?= $escaper->escapeHtml(__('Problem Description')) ?></h3>
+            <p><?= $escaper->escapeHtml((string)($rec['description'] ?? '')) ?></p>
+        </div>
+
+        <div class="si-rv-action">
+            <h3><?= $escaper->escapeHtml(__('Recommended Action')) ?></h3>
+            <p><?= $escaper->escapeHtml((string)($rec['action'] ?? '')) ?></p>
+        </div>
+
+        <?php if (!empty($rec['estimated_impact'])): ?>
+        <div class="si-rv-impact">
+            <p><strong><?= $escaper->escapeHtml(__('Estimated Impact:')) ?></strong>
+                <?= $escaper->escapeHtml((string)$rec['estimated_impact']) ?></p>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($items)): ?>
+        <div class="si-rv-card">
+            <h3><?= $escaper->escapeHtml(__('Collector Data')) ?></h3>
+            <div class="si-rv-grid">
+                <table>
+                    <thead>
+                        <tr>
+                            <?php foreach (array_keys($items[0] ?? []) as $col): ?>
+                                <th><?= $escaper->escapeHtml((string)$col) ?></th>
+                            <?php endforeach; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($items as $item): ?>
+                        <tr>
+                            <?php foreach ($item as $val): ?>
+                                <td><?= $escaper->escapeHtml(is_array($val) ? json_encode($val) : (string)$val) ?></td>
+                            <?php endforeach; ?>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <div class="si-rv-actions">
+            <?php if (!($rec['dismissed'] ?? false)): ?>
+            <button class="si-rv-btn si-rv-btn-dismiss"
+                    type="button"
+                    id="si-dismiss-btn"
+                    data-id="<?= (int) $recId ?>">
+                <?= $escaper->escapeHtml(__('Dismiss Recommendation')) ?>
+            </button>
+            <?php endif; ?>
+            <a href="<?= $escaper->escapeUrl($exportUrl) ?>" class="si-rv-btn si-rv-btn-export">
+                <?= $escaper->escapeHtml(__('Export CSV')) ?>
+            </a>
+        </div>
+
+        <div class="si-rv-back-wrap">
+            <a href="<?= $escaper->escapeUrl($backUrl) ?>" class="si-rv-btn-back">&larr;
+                <?= $escaper->escapeHtml(__('Back to Recommendations')) ?></a>
+        </div>
+    <?php endif; ?>
+</div>
+
+<script type="text/x-magento-init">
+{
+    "#si-rv": {
+        "Egsn_StoreIntelligence/js/recommendation-view": {}
+    }
+}
+</script>

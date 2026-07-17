@@ -1,0 +1,149 @@
+<?php
+/**
+ * Copyright © 2026 Esmerio Neto. All rights reserved.
+ *
+ * @var \Egsn\StoreIntelligence\Block\Adminhtml\History $block
+ */
+declare(strict_types=1);
+
+$page     = max(1, (int)($block->getRequest()->getParam('page', 1)));
+$result   = $block->getAnalyses($page, 20);
+$items    = $result['items'] ?? [];
+$total    = (int)($result['total'] ?? 0);
+$pageSize = (int)($result['page_size'] ?? 20);
+$pages    = $pageSize > 0 ? (int)ceil($total / $pageSize) : 1;
+
+$scoreStyles = static function (mixed $score): array {
+    $s = ($score !== null) ? (int)$score : -1;
+    if ($s < 0) {   return ['class' => 'si-score--na',       'label' => (string)__('N/A')];
+    }
+    if ($s >= 70) { return ['class' => 'si-score--good',     'label' => (string)$s];
+    }
+    if ($s >= 40) { return ['class' => 'si-score--warning',  'label' => (string)$s];
+    }
+    return               ['class' => 'si-score--critical', 'label' => (string)$s];
+};
+
+$statusStyles = [
+    'completed' => ['class' => 'si-status--completed', 'label' => __('Completed')],
+    'running'   => ['class' => 'si-status--running',   'label' => __('Running')],
+    'failed'    => ['class' => 'si-status--failed',    'label' => __('Failed')],
+    'pending'   => ['class' => 'si-status--pending',   'label' => __('Pending')],
+];
+
+$triggerLabels = [
+    'manual' => __('Manual'),
+    'cron'   => __('Cron'),
+    'api'    => __('API'),
+];
+?>
+<div class="si-history">
+    <h2><?= $escaper->escapeHtml(__('Store Intelligence — Analysis History')) ?></h2>
+
+    <?php if ($total > 0): ?>
+        <p class="si-summary-row">
+            <?= $escaper->escapeHtml(__(
+                'Showing %1–%2 of %3 analysis(es).',
+                (int)(($page - 1) * $pageSize + 1),
+                (int) min($page * $pageSize, $total),
+                (int) $total
+            )) ?>
+        </p>
+    <?php endif; ?>
+
+    <div class="si-table-wrap">
+        <?php if (empty($items)): ?>
+            <div class="si-empty">
+                <?= $escaper->escapeHtml(__('No analyses found. Run an analysis from the Dashboard.')) ?>
+            </div>
+        <?php else: ?>
+            <table class="si-table">
+                <thead>
+                    <tr>
+                        <th><?= $escaper->escapeHtml(__('ID')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Date')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Trigger')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Scope')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Score')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Status')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('AI Provider')) ?></th>
+                        <th><?= $escaper->escapeHtml(__('Action')) ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($items as $row): ?>
+                        <?php
+                            $scoreSt = $scoreStyles($row['score'] ?? null);
+                            $status  = $row['status'] ?? 'pending';
+                            $statSt  = $statusStyles[$status]
+                                ?? ['class' => 'si-status--pending', 'label' => $escaper->escapeHtml($status)];
+                            $trigger = $triggerLabels[$row['triggered_by'] ?? '']
+                                ?? $escaper->escapeHtml((string)($row['triggered_by'] ?? '—'));
+                            $ranAt   = isset($row['ran_at']) ? substr((string)$row['ran_at'], 0, 16) : '—';
+                        ?>
+                        <tr>
+                            <td>
+                                <?php $viewUrl = $block->getUrl('egsn_si/history/view', ['id' => (int)$row['id']]); ?>
+                                <a href="<?= $escaper->escapeUrl($viewUrl) ?>">
+                                    <strong>#<?= (int)$row['id'] ?></strong></a>
+                            </td>
+                            <td><?= $escaper->escapeHtml($ranAt) ?></td>
+                            <td><?= $escaper->escapeHtml($trigger) ?></td>
+                            <td><?= $escaper->escapeHtml($block->getScopeLabel(
+                                isset($row['website_id']) ? (int)$row['website_id'] : null
+                            )) ?></td>
+                            <td>
+                                <span class="si-score-badge <?= $escaper->escapeHtml($scoreSt['class']) ?>">
+                                    <?= $escaper->escapeHtml($scoreSt['label']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="si-badge <?= $escaper->escapeHtml($statSt['class']) ?>"
+                                    <?php if (!empty($row['error_message'])): ?>
+                                        title="<?= $escaper->escapeHtmlAttr((string)$row['error_message']) ?>"
+                                    <?php endif; ?>>
+                                    <?= $escaper->escapeHtml($statSt['label']) ?>
+                                </span>
+                            </td>
+                            <td><?= $escaper->escapeHtml((string)($row['ai_provider'] ?? '—')) ?></td>
+                            <td>
+                                <?php if (($row['status'] ?? '') === 'completed'): ?>
+                                    <?php $exportUrl = $block->getUrl(
+                                        'egsn_si/analysis/export',
+                                        ['id' => (int)$row['id']]
+                                    ); ?>
+                                    <a href="<?= $escaper->escapeUrl($exportUrl) ?>">
+                                        <?= $escaper->escapeHtml(__('Export CSV')) ?>
+                                    </a>
+                                <?php else: ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <?php if ($pages > 1): ?>
+                <div class="si-pagination">
+                    <?php if ($page > 1): ?>
+                        <a href="<?= $escaper->escapeUrl('?page=' . ($page - 1)) ?>">&lsaquo;
+                            <?= $escaper->escapeHtml(__('Previous')) ?></a>
+                    <?php endif; ?>
+                    <?php $lastPage = min($pages, $page + 2); ?>
+                    <?php for ($p = max(1, $page - 2); $p <= $lastPage; $p++): ?>
+                        <?php if ($p === $page): ?>
+                            <span class="current"><?= (int) $p ?></span>
+                        <?php else: ?>
+                            <a href="<?= $escaper->escapeUrl('?page=' . $p) ?>"><?= (int) $p ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                    <?php if ($page < $pages): ?>
+                        <a href="<?= $escaper->escapeUrl('?page=' . ($page + 1)) ?>">
+                            <?= $escaper->escapeHtml(__('Next')) ?> &rsaquo;</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<ruleset name="EgsnStoreIntelligence">
+    <description>Magento2 standard; linhas longas isentas apenas em XML (FQCNs em di.xml não podem ser quebrados).</description>
+    <rule ref="Magento2"/>
+    <rule ref="Generic.Files.LineLength">
+        <exclude-pattern>*.xml</exclude-pattern>
+    </rule>
+</ruleset>

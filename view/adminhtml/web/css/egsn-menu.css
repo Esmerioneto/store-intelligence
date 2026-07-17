@@ -1,0 +1,20 @@
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+
+/* Ícone do grupo "Egsn" no menu lateral do admin.
+   mask + currentColor herda a cor do texto do item (normal/hover/ativo). */
+.admin__menu .level-0.item-egsn > a:before {
+    content: '';
+    display: block;
+    width: 2.4rem;
+    height: 2.4rem;
+    margin: 0 auto;
+    background-color: currentColor;
+    -webkit-mask: url('../images/egsn_menu.svg') center / contain no-repeat;
+    mask: url('../images/egsn_menu.svg') center / contain no-repeat;
+}

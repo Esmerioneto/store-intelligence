@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="egsn_si_analysis_report"
+              label="Store Intelligence — Relatório de Análise"
+              file="analysis_report.html"
+              type="html"
+              module="Egsn_StoreIntelligence"
+              area="adminhtml"/>
+</config>

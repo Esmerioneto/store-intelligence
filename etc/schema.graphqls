@@ -1,0 +1,92 @@
+type Query {
+    storeIntelligenceLatestAnalysis: StoreAnalysis @resolver(class: "Egsn\\StoreIntelligence\\Model\\Resolver\\LatestAnalysis") @doc(description: "Get latest completed store intelligence analysis")
+    storeIntelligenceAnalysis(id: Int!): StoreAnalysis @resolver(class: "Egsn\\StoreIntelligence\\Model\\Resolver\\AnalysisById") @doc(description: "Get analysis by ID")
+    storeIntelligenceRecommendations(
+        category: AnalysisCategory @doc(description: "Filter by category"),
+        priority: RecommendationPriority @doc(description: "Filter by priority"),
+        pageSize: Int = 20,
+        currentPage: Int = 1
+    ): RecommendationSearchResult @resolver(class: "Egsn\\StoreIntelligence\\Model\\Resolver\\Recommendations") @doc(description: "Get recommendations with optional filters")
+    storeIntelligenceCollectors: [CollectorStatus] @resolver(class: "Egsn\\StoreIntelligence\\Model\\Resolver\\Collectors") @doc(description: "Get all collectors with their last result")
+}
+
+type Mutation {
+    runStoreIntelligenceAnalysis: AnalysisQueueResult @resolver(class: "Egsn\\StoreIntelligence\\Model\\Resolver\\RunAnalysis") @doc(description: "Trigger a new store intelligence analysis")
+    dismissRecommendation(id: Int!): DismissResult @resolver(class: "Egsn\\StoreIntelligence\\Model\\Resolver\\DismissRecommendation") @doc(description: "Dismiss a recommendation by ID")
+}
+
+type StoreAnalysis {
+    id: Int
+    ran_at: String
+    status: AnalysisStatus
+    summary: String
+    score: Int
+    ai_provider: String
+    triggered_by: String
+    finished_at: String
+    performance: CategoryResult
+    errors: CategoryResult
+    sales: CategoryResult
+    recommendations: [Recommendation]
+}
+
+type CategoryResult {
+    status: String
+    score: Int
+    collectors: [CollectorStatus]
+}
+
+type Recommendation {
+    id: Int
+    priority: RecommendationPriority
+    category: AnalysisCategory
+    collector: String
+    title: String
+    description: String
+    action: String
+    estimated_impact: String
+    dismissed: Boolean
+}
+
+type CollectorStatus {
+    code: String
+    category: AnalysisCategory
+    status: String
+    score: Int
+    last_run: String
+}
+
+type RecommendationSearchResult {
+    items: [Recommendation]
+    total: Int
+    page: Int
+    page_size: Int
+}
+
+type AnalysisQueueResult {
+    status: String
+    message: String
+}
+
+enum AnalysisStatus {
+    PENDING
+    RUNNING
+    COMPLETED
+    FAILED
+}
+
+enum AnalysisCategory {
+    PERFORMANCE
+    ERRORS
+    SALES
+}
+
+enum RecommendationPriority {
+    CRITICAL
+    WARNING
+    IMPROVEMENT
+}
+
+type DismissResult {
+    success: Boolean
+}

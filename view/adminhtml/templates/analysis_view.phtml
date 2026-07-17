@@ -1,0 +1,147 @@
+<?php
+/**
+ * Copyright © 2026 Esmerio Neto. All rights reserved.
+ *
+ * @var \Egsn\StoreIntelligence\Block\Adminhtml\AnalysisView $block
+ */
+declare(strict_types=1);
+
+$analysis = $block->getAnalysis();
+$results  = $block->getResults();
+$backUrl  = $block->getUrl('egsn_si/history/index');
+
+$statusStyles = [
+    'completed' => ['class' => 'si-status--completed', 'label' => __('Completed')],
+    'running'   => ['class' => 'si-status--running',   'label' => __('Running')],
+    'failed'    => ['class' => 'si-status--failed',    'label' => __('Failed')],
+    'pending'   => ['class' => 'si-status--pending',   'label' => __('Pending')],
+];
+$resultStyles = [
+    'ok'       => 'si-priority--improvement',
+    'warning'  => 'si-priority--warning',
+    'critical' => 'si-priority--critical',
+];
+?>
+<div class="si-history">
+    <?php if (empty($analysis)): ?>
+        <div class="si-empty"><?= $escaper->escapeHtml(__('Analysis not found.')) ?></div>
+        <p><a href="<?= $escaper->escapeUrl($backUrl) ?>">&larr;
+            <?= $escaper->escapeHtml(__('Back to History')) ?></a></p>
+    <?php else: ?>
+        <?php
+        $status = (string)($analysis['status'] ?? 'pending');
+        $statSt = $statusStyles[$status] ?? $statusStyles['pending'];
+        ?>
+        <h2><?= $escaper->escapeHtml(__('Analysis #%1', (int)$analysis['id'])) ?></h2>
+
+        <div class="si-rv-meta">
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('Status:')) ?></strong>
+                <span class="si-badge <?= $escaper->escapeHtml($statSt['class']) ?>"
+                    <?php if (!empty($analysis['error_message'])): ?>
+                        title="<?= $escaper->escapeHtmlAttr((string)$analysis['error_message']) ?>"
+                    <?php endif; ?>>
+                    <?= $escaper->escapeHtml($statSt['label']) ?>
+                </span>
+            </div>
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('Score:')) ?></strong>
+                <?= isset($analysis['score']) ? (int)$analysis['score'] : $escaper->escapeHtml(__('N/A')) ?>
+            </div>
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('Scope:')) ?></strong>
+                <?= $escaper->escapeHtml($block->getScopeLabel(
+                    isset($analysis['website_id']) ? (int)$analysis['website_id'] : null
+                )) ?>
+            </div>
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('Start:')) ?></strong>
+                <?= $escaper->escapeHtml(substr((string)($analysis['ran_at'] ?? '—'), 0, 16)) ?>
+            </div>
+            <div class="si-rv-meta-item">
+                <strong><?= $escaper->escapeHtml(__('End:')) ?></strong>
+                <?= $escaper->escapeHtml(substr((string)($analysis['finished_at'] ?? '—'), 0, 16)) ?>
+            </div>
+            <?php if (!empty($analysis['ai_provider'])): ?>
+                <div class="si-rv-meta-item">
+                    <strong><?= $escaper->escapeHtml(__('AI Provider:')) ?></strong>
+                    <?= $escaper->escapeHtml((string)$analysis['ai_provider']) ?>
+                    <?php if (!empty($analysis['ai_tokens'])): ?>
+                        (<?= (int)$analysis['ai_tokens'] ?> tokens)
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <?php if (!empty($analysis['error_message'])): ?>
+            <div class="si-rv-impact">
+                <p><strong><?= $escaper->escapeHtml(__('Failure reason:')) ?></strong>
+                    <?= $escaper->escapeHtml((string)$analysis['error_message']) ?></p>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($analysis['summary'])): ?>
+            <div class="si-rv-card">
+                <h3><?= $escaper->escapeHtml(__('AI Summary')) ?></h3>
+                <p><?= $escaper->escapeHtml((string)$analysis['summary']) ?></p>
+            </div>
+        <?php endif; ?>
+
+        <div class="si-rv-card">
+            <h3><?= $escaper->escapeHtml(__('Collector Results')) ?> (<?= count($results) ?>)</h3>
+            <?php if (empty($results)): ?>
+                <div class="si-empty"><?= $escaper->escapeHtml(__('No results recorded.')) ?></div>
+            <?php else: ?>
+                <div class="si-table-wrap">
+                    <table class="si-table">
+                        <thead>
+                            <tr>
+                                <th><?= $escaper->escapeHtml(__('Collector')) ?></th>
+                                <th><?= $escaper->escapeHtml(__('Category')) ?></th>
+                                <th><?= $escaper->escapeHtml(__('Status')) ?></th>
+                                <th><?= $escaper->escapeHtml(__('Score')) ?></th>
+                                <th><?= $escaper->escapeHtml(__('Note')) ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($results as $result): ?>
+                                <?php
+                                $rStatus = (string)($result['status'] ?? '');
+                                $note    = (string)($result['data']['summary']['note'] ?? '');
+                                ?>
+                                <?php $collectorLabel = ucwords(str_replace('_', ' ', (string)$result['collector'])); ?>
+                                <tr>
+                                    <td><?= $escaper->escapeHtml($collectorLabel) ?></td>
+                                    <td><?= $escaper->escapeHtml((string)$result['category']) ?></td>
+                                    <td>
+                                        <?php $badgeClass = $resultStyles[$rStatus] ?? ''; ?>
+                                        <span class="si-pri-badge <?= $escaper->escapeHtml($badgeClass) ?>">
+                                            <?= $escaper->escapeHtml(strtoupper($rStatus)) ?>
+                                        </span>
+                                    </td>
+                                    <td><?= isset($result['score']) && $result['score'] !== null
+                                        ? (int)$result['score']
+                                        : '—' ?></td>
+                                    <td class="si-impact"><?= $escaper->escapeHtml($note) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="si-rv-actions">
+            <?php if ($status === 'completed'): ?>
+                <?php $exportUrl = $block->getUrl('egsn_si/analysis/export', ['id' => (int)$analysis['id']]); ?>
+                <a href="<?= $escaper->escapeUrl($exportUrl) ?>" class="si-rv-btn si-rv-btn-export">
+                    <?= $escaper->escapeHtml(__('Export CSV')) ?>
+                </a>
+            <?php endif; ?>
+        </div>
+        <div class="si-rv-back-wrap">
+            <a href="<?= $escaper->escapeUrl($backUrl) ?>" class="si-rv-btn-back">&larr;
+                <?= $escaper->escapeHtml(__('Back to History')) ?></a>
+        </div>
+    <?php endif; ?>
+</div>

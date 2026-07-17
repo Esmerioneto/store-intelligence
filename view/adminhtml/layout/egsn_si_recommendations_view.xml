@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="styles"/>
+    <head>
+        <css src="Egsn_StoreIntelligence::css/egsn-store-intelligence.css"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Egsn\StoreIntelligence\Block\Adminhtml\RecommendationView"
+                   name="egsn_si_recommendation_view"
+                   template="Egsn_StoreIntelligence::recommendation_view.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

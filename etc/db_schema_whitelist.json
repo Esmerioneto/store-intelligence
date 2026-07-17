@@ -1,0 +1,93 @@
+{
+    "egsn_si_analysis": {
+        "column": {
+            "id": true,
+            "status": true,
+            "triggered_by": true,
+            "website_id": true,
+            "ran_at": true,
+            "finished_at": true,
+            "score": true,
+            "summary": true,
+            "error_message": true,
+            "ai_provider": true,
+            "ai_tokens": true,
+            "ai_prompt": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {}
+    },
+    "egsn_si_collector_result": {
+        "column": {
+            "id": true,
+            "analysis_id": true,
+            "collector": true,
+            "category": true,
+            "status": true,
+            "score": true,
+            "data": true,
+            "ran_ms": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "EGSN_SI_COLLECTOR_RESULT_ANALYSIS_ID": true
+        },
+        "index": {
+            "EGSN_SI_COLLECTOR_RESULT_ANALYSIS_ID": true,
+            "EGSN_SI_COLLECTOR_RESULT_COLLECTOR": true
+        }
+    },
+    "egsn_si_recommendation": {
+        "column": {
+            "id": true,
+            "analysis_id": true,
+            "collector": true,
+            "category": true,
+            "priority": true,
+            "title": true,
+            "description": true,
+            "action": true,
+            "estimated_impact": true,
+            "dismissed": true,
+            "dismissed_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "EGSN_SI_RECOMMENDATION_ANALYSIS_ID": true
+        },
+        "index": {
+            "EGSN_SI_RECOMMENDATION_ANALYSIS_ID": true,
+            "EGSN_SI_RECOMMENDATION_PRIORITY": true,
+            "EGSN_SI_RECOMMENDATION_DISMISSED": true
+        }
+    },
+    "egsn_si_lock": {
+        "column": {
+            "id": true,
+            "locked_at": true,
+            "expires_at": true,
+            "process_id": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {}
+    },
+    "egsn_si_email_log": {
+        "column": {
+            "id": true,
+            "analysis_id": true,
+            "recipient": true,
+            "sent_at": true,
+            "status": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "EGSN_SI_EMAIL_LOG_ANALYSIS_ID": true
+        },
+        "index": {}
+    }
+}

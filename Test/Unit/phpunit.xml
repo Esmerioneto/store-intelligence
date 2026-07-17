@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+         colors="true"
+         columns="max"
+         beStrictAboutTestsThatDoNotTestAnything="false"
+         bootstrap="/var/www/html/dev/tests/unit/framework/bootstrap.php">
+    <testsuites>
+        <testsuite name="Egsn_StoreIntelligence Unit Tests">
+            <directory>/var/www/html/app/code/Egsn/StoreIntelligence/Test/Unit</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <ini name="memory_limit" value="-1"/>
+        <ini name="date.timezone" value="UTC"/>
+        <ini name="xdebug.mode" value="off"/>
+    </php>
+</phpunit>

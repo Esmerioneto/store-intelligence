@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="egsn_store_intelligence_run"
+             instance="Egsn\StoreIntelligence\Cron\RunAnalysis"
+             method="execute">
+            <schedule>0 1 * * *</schedule>
+        </job>
+        <job name="egsn_store_intelligence_cleanup"
+             instance="Egsn\StoreIntelligence\Cron\GarbageCollection"
+             method="execute">
+            <schedule>0 3 * * *</schedule>
+        </job>
+    </group>
+</config>

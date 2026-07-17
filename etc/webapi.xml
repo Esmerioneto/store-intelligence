@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/egsn/store-intelligence/analysis" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getList"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/analysis/latest" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getLatest"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/analysis/:id" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getById"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/analysis/run" method="POST">
+        <service class="Egsn\StoreIntelligence\Api\RunAnalysisInterface" method="execute"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/diagnostics/performance" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getPerformanceDiagnostics"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/diagnostics/errors" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getErrorsDiagnostics"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/diagnostics/sales" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getSalesDiagnostics"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/recommendations" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getRecommendations"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/recommendations/:id/dismiss" method="POST">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="dismissRecommendation"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/collectors" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getCollectors"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/collectors/:code/result" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="getCollectorResult"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+    <route url="/V1/egsn/store-intelligence/analysis/:id/export" method="GET">
+        <service class="Egsn\StoreIntelligence\Api\AnalysisRepositoryInterface" method="exportAnalysis"/>
+        <resources><resource ref="Egsn_StoreIntelligence::api"/></resources>
+    </route>
+</routes>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
+    <consumer name="egsn.store.intelligence.consumer"
+              queue="egsn.store.intelligence.analysis.run"
+              connection="db"
+              handler="Egsn\StoreIntelligence\MessageQueue\Consumer::process"
+              maxMessages="1"/>
+</config>

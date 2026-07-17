@@ -1,0 +1,230 @@
+<?php
+/**
+ * Copyright © 2026 Esmerio Neto. All rights reserved.
+ *
+ * @var \Egsn\StoreIntelligence\Block\Adminhtml\Dashboard $block
+ */
+declare(strict_types=1);
+
+$analysis        = $block->getLatestAnalysis();
+$recommendations = $block->getTopRecommendations(5);
+$history         = $block->getScoreHistory(8);
+$catScores       = $block->getCategoryScores();
+$comparison      = $block->getComparison();
+$tokenUsage      = $block->getTokenUsage();
+$runUrl          = $escaper->escapeUrl($block->getRunAnalysisUrl());
+
+$scoreClassFor = static function (?int $s): string {
+    if ($s === null) {  return 'si-score--na';
+    }
+    if ($s >= 70) {     return 'si-score--good';
+    }
+    if ($s >= 40) {     return 'si-score--warning';
+    }
+    return 'si-score--critical';
+};
+
+$categoryLabels = ['performance' => __('Performance'), 'errors' => __('Errors'), 'sales' => __('Sales')];
+
+$collectorLabel = static fn (string $code): string => ucwords(str_replace('_', ' ', $code));
+
+$score = isset($analysis['score']) ? (int)$analysis['score'] : null;
+
+if ($score === null) {
+    $scoreClass = 'si-score--na';
+    $scoreBadge = __('N/A');
+} elseif ($score >= 70) {
+    $scoreClass = 'si-score--good';
+    $scoreBadge = __('Good');
+} elseif ($score >= 40) {
+    $scoreClass = 'si-score--warning';
+    $scoreBadge = __('Fair');
+} else {
+    $scoreClass = 'si-score--critical';
+    $scoreBadge = __('Critical');
+}
+
+$priorityClasses = [
+    'critical'    => ['class' => 'si-priority--critical',    'label' => __('Critical')],
+    'warning'     => ['class' => 'si-priority--warning',     'label' => __('Warning')],
+    'improvement' => ['class' => 'si-priority--improvement', 'label' => __('Improvement')],
+];
+
+$historyLabels = [];
+$historyScores = [];
+foreach ($history as $item) {
+    $historyLabels[] = isset($item['created_at']) ? substr($item['created_at'], 0, 10) : '—';
+    $historyScores[] = isset($item['score']) ? (int)$item['score'] : 0;
+}
+?>
+<div class="si-dashboard"
+     id="si-dashboard"
+     data-run-url="<?= $escaper->escapeUrl($block->getRunAnalysisUrl()) ?>"
+     data-status-url="<?= $escaper->escapeUrl($block->getStatusUrl()) ?>"
+     data-form-key="<?= $escaper->escapeHtml($block->getFormKey()) ?>">
+
+    <h2><?= $escaper->escapeHtml(__('Store Intelligence — Dashboard')) ?></h2>
+
+    <div class="si-row">
+        <!-- Score Card -->
+        <div class="si-card si-card--narrow">
+            <h3><?= $escaper->escapeHtml(__('Current Score')) ?></h3>
+            <?php if ($score !== null): ?>
+                <div class="si-score-value <?= $escaper->escapeHtml($scoreClass) ?>">
+                    <?= (int)$score ?>
+                </div>
+                <span class="si-score-pill <?= $escaper->escapeHtml($scoreClass) ?>">
+                    <?= $escaper->escapeHtml($scoreBadge) ?>
+                </span>
+                <?php if (isset($analysis['created_at'])): ?>
+                    <div class="si-meta"><?= $escaper->escapeHtml(__('Last analysis:')) ?>
+                        <?= $escaper->escapeHtml(substr($analysis['created_at'], 0, 16)) ?></div>
+                <?php endif; ?>
+            <?php else: ?>
+                <div class="si-empty"><?= $escaper->escapeHtml(__('No analysis performed yet.')) ?></div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Resumo da IA -->
+        <div class="si-card si-card--wide">
+            <h3><?= $escaper->escapeHtml(__('AI Summary')) ?></h3>
+            <?php if (!empty($analysis['summary'])): ?>
+                <div class="si-summary-box"><?= $escaper->escapeHtml($analysis['summary']) ?></div>
+            <?php else: ?>
+                <div class="si-empty"><?= $escaper->escapeHtml(__('No summary available.')) ?></div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Analisar Agora -->
+        <div class="si-card si-card--actions">
+            <h3><?= $escaper->escapeHtml(__('Actions')) ?></h3>
+            <button id="si-run-btn" class="si-run-btn" type="button">&#9654;
+                <?= $escaper->escapeHtml(__('Analyze Now')) ?></button>
+            <div id="si-msg" class="si-msg"></div>
+            <div class="si-meta si-token-usage">
+                <?php if ($tokenUsage['budget'] > 0): ?>
+                    <?= $escaper->escapeHtml(__(
+                        'AI tokens this month: %1 of %2',
+                        number_format($tokenUsage['used']),
+                        number_format($tokenUsage['budget'])
+                    )) ?>
+                <?php else: ?>
+                    <?= $escaper->escapeHtml(__(
+                        'AI tokens this month: %1 (unlimited)',
+                        number_format($tokenUsage['used'])
+                    )) ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="si-row">
+        <!-- Score por Categoria -->
+        <?php foreach ($categoryLabels as $catCode => $catLabel): ?>
+            <?php $catScore = $catScores[$catCode] ?? null; ?>
+            <div class="si-card si-card--narrow">
+                <h3><?= $escaper->escapeHtml($catLabel) ?></h3>
+                <?php if ($catScore !== null): ?>
+                    <div class="si-score-value <?= $escaper->escapeHtml($scoreClassFor($catScore)) ?>">
+                        <?= (int)$catScore ?>
+                    </div>
+                <?php else: ?>
+                    <div class="si-empty"><?= $escaper->escapeHtml(__('No data.')) ?></div>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+
+        <!-- O que mudou desde a última análise -->
+        <div class="si-card si-card--wide">
+            <h3><?= $escaper->escapeHtml(__('What changed since the last analysis')) ?></h3>
+            <?php if ($comparison['previous_id'] === null): ?>
+                <div class="si-empty">
+                    <?= $escaper->escapeHtml(__('At least two completed analyses are required to compare.')) ?>
+                </div>
+            <?php else: ?>
+                <div class="si-meta">
+                    <?= $escaper->escapeHtml(__(
+                        'Comparing #%1 with #%2',
+                        (int)$comparison['current_id'],
+                        (int)$comparison['previous_id']
+                    )) ?>
+                </div>
+                <?php
+                $diffSections = [
+                    ['label' => __('New issues'), 'items' => $comparison['new'],
+                        'class' => 'si-priority--critical'],
+                    ['label' => __('Resolved'), 'items' => $comparison['resolved'],
+                        'class' => 'si-priority--improvement'],
+                    ['label' => __('Persistent'), 'items' => $comparison['persistent'],
+                        'class' => 'si-priority--warning'],
+                ];
+                ?>
+                <?php foreach ($diffSections as $section): ?>
+                    <div class="si-diff-section">
+                        <strong><?= $escaper->escapeHtml($section['label']) ?>
+                            (<?= count($section['items']) ?>):</strong>
+                        <?php if (empty($section['items'])): ?>
+                            <span class="si-meta"><?= $escaper->escapeHtml(__('none')) ?></span>
+                        <?php else: ?>
+                            <?php foreach ($section['items'] as $collectorCode => $collectorStatus): ?>
+                                <span class="si-pri-badge <?= $escaper->escapeHtml($section['class']) ?>"
+                                      title="<?= $escaper->escapeHtmlAttr((string)$collectorStatus) ?>">
+                                    <?= $escaper->escapeHtml($collectorLabel((string)$collectorCode)) ?>
+                                </span>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="si-row">
+        <!-- Top 5 Recomendações -->
+        <div class="si-card si-card--wide">
+            <h3><?= $escaper->escapeHtml(__('Top Recommendations')) ?></h3>
+            <?php if (!empty($recommendations)): ?>
+                <ul class="si-rec-list">
+                    <?php foreach ($recommendations as $rec): ?>
+                        <?php
+                            $pri   = $rec['priority'] ?? 'improvement';
+                            $style = $priorityClasses[$pri] ?? $priorityClasses['improvement'];
+                        ?>
+                        <li>
+                            <span class="si-pri-badge <?= $escaper->escapeHtml($style['class']) ?>">
+                                <?= $escaper->escapeHtml($style['label']) ?>
+                            </span>
+                            <span class="si-rec-title"><?= $escaper->escapeHtml($rec['title'] ?? '') ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <div class="si-empty"><?= $escaper->escapeHtml(__('No recommendations available.')) ?></div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Evolução do Score -->
+        <div class="si-card si-card--chart">
+            <h3><?= $escaper->escapeHtml(__('Score History')) ?></h3>
+            <?php if (!empty($historyScores)): ?>
+                <div id="si-chart-data"
+                     data-labels="<?= $escaper->escapeHtml(json_encode($historyLabels, JSON_UNESCAPED_UNICODE)) ?>"
+                     data-scores="<?= $escaper->escapeHtml(json_encode($historyScores)) ?>">
+                </div>
+                <div class="si-chart-wrap">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            <?php else: ?>
+                <div class="si-empty"><?= $escaper->escapeHtml(__('No score history yet.')) ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<script type="text/x-magento-init">
+{
+    "#si-dashboard": {
+        "Egsn_StoreIntelligence/js/dashboard": {}
+    }
+}
+</script>

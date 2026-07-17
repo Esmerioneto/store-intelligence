@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="egsn" translate="label" sortOrder="999">
+            <label>Egsn</label>
+        </tab>
+        <section id="egsn_si" translate="label" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Store Intelligence</label>
+            <tab>egsn</tab>
+            <resource>Egsn_StoreIntelligence::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>AI Provider</label>
+                <field id="ai_provider" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>AI Provider</label>
+                    <source_model>Egsn\StoreIntelligence\Model\Config\Source\AiProvider</source_model>
+                    <comment>Select the AI provider for diagnostics</comment>
+                </field>
+                <field id="ai_api_key_claude" translate="label" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Anthropic API Key (Claude)</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <depends><field id="ai_provider">claude</field></depends>
+                </field>
+                <field id="ai_model_claude" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Claude Model</label>
+                    <comment>E.g.: claude-sonnet-4-6</comment>
+                    <depends><field id="ai_provider">claude</field></depends>
+                </field>
+                <field id="ai_api_key_openai" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>OpenAI API Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <depends><field id="ai_provider">openai</field></depends>
+                </field>
+                <field id="ai_model_openai" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>OpenAI Model</label>
+                    <comment>E.g.: gpt-4o</comment>
+                    <depends><field id="ai_provider">openai</field></depends>
+                </field>
+                <field id="ai_api_key_gemini" translate="label" type="obscure" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Google AI Studio API Key (Gemini)</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>Free key at aistudio.google.com</comment>
+                    <depends><field id="ai_provider">gemini</field></depends>
+                </field>
+                <field id="ai_model_gemini" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Gemini Model</label>
+                    <comment>E.g.: gemini-2.5-flash (free)</comment>
+                    <depends><field id="ai_provider">gemini</field></depends>
+                </field>
+                <field id="website_id" translate="label comment" type="select" sortOrder="75" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Analysis Scope</label>
+                    <source_model>Egsn\StoreIntelligence\Model\Config\Source\Website</source_model>
+                    <comment>Restricts sales/order collectors to the selected website. Infrastructure collectors (opcache, logs, cache) are always global.</comment>
+                </field>
+                <field id="token_budget_monthly" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Monthly AI Token Budget</label>
+                    <comment>When the limit is reached, analyses continue (deterministic score) but without AI summary/recommendations until next month. 0 = unlimited.</comment>
+                    <validate>validate-digits</validate>
+                </field>
+            </group>
+            <group id="schedule" translate="label" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Schedule</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Automatic Analysis</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="window_start" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Window Start (HH:MM)</label>
+                </field>
+                <field id="window_end" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Window End (HH:MM)</label>
+                </field>
+            </group>
+            <group id="thresholds" translate="label" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Thresholds</label>
+                <field id="no_sales_days" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Days without sale (alert)</label>
+                </field>
+                <field id="abandoned_cart_hours" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Hours until cart is abandoned</label>
+                </field>
+                <field id="inactive_customers_months" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Months until customer is inactive</label>
+                </field>
+                <field id="large_image_kb" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Maximum image size (KB)</label>
+                    <comment>Images above this size are flagged as unoptimized</comment>
+                </field>
+                <field id="slow_query_seconds" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Slow query threshold (seconds)</label>
+                    <comment>Queries exceeding this time are reported</comment>
+                </field>
+                <field id="sample_size" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Sample size (products)</label>
+                    <comment>Number of products analyzed per catalog collector</comment>
+                </field>
+                <field id="collector_timeout_performance" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Performance collectors timeout (seconds)</label>
+                    <comment>0 = unlimited</comment>
+                </field>
+                <field id="collector_timeout_errors" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Errors collectors timeout (seconds)</label>
+                    <comment>0 = unlimited</comment>
+                </field>
+                <field id="collector_timeout_sales" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Sales collectors timeout (seconds)</label>
+                    <comment>0 = unlimited</comment>
+                </field>
+                <field id="global_timeout_minutes" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Global analysis timeout (minutes)</label>
+                    <comment>Maximum total time for a complete analysis</comment>
+                </field>
+            </group>
+            <group id="cleanup" translate="label" sortOrder="35" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Data Cleanup</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Garbage Collection</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Automatically removes old analyses via cron</comment>
+                </field>
+                <field id="retention_days" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Data retention (days)</label>
+                    <comment>Analyses older than this number of days will be removed</comment>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+            <group id="email" translate="label" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Email Notifications</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Send Email</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="recipients" translate="label" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Recipients (one per line)</label>
+                </field>
+            </group>
+            <group id="webhook" translate="label" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Webhook Notifications</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Send Webhook</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Sends a JSON POST {"text": "..."} when each analysis completes. Compatible with Slack and Microsoft Teams incoming webhooks.</comment>
+                </field>
+                <field id="url" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Webhook URL</label>
+                    <validate>validate-url</validate>
+                    <depends><field id="enabled">1</field></depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

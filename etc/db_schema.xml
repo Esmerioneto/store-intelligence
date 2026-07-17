@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <table name="egsn_si_analysis" resource="default" engine="innodb" comment="Store Intelligence Analysis History">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true" comment="Analysis ID"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" default="pending" comment="Status"/>
+        <column xsi:type="varchar" name="triggered_by" nullable="false" length="16" comment="cron|manual|api"/>
+        <column xsi:type="smallint" name="website_id" unsigned="true" nullable="true" identity="false" comment="Website scope (null = global)"/>
+        <column xsi:type="datetime" name="ran_at" nullable="true" comment="Start time"/>
+        <column xsi:type="datetime" name="finished_at" nullable="true" comment="End time"/>
+        <column xsi:type="smallint" name="score" unsigned="true" nullable="true" identity="false" comment="Health score 0-100"/>
+        <column xsi:type="text" name="summary" nullable="true" comment="AI-generated summary"/>
+        <column xsi:type="text" name="error_message" nullable="true" comment="Failure reason"/>
+        <column xsi:type="varchar" name="ai_provider" nullable="true" length="64" comment="AI provider used"/>
+        <column xsi:type="int" name="ai_tokens" unsigned="true" nullable="true" identity="false" comment="Tokens consumed"/>
+        <column xsi:type="text" name="ai_prompt" nullable="true" comment="Prompt sent to AI"/>
+        <column xsi:type="datetime" name="created_at" nullable="false" comment="Created at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+    </table>
+
+    <table name="egsn_si_collector_result" resource="default" engine="innodb" comment="Collector Results">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="int" name="analysis_id" unsigned="true" nullable="false" identity="false" comment="Analysis ID"/>
+        <column xsi:type="varchar" name="collector" nullable="false" length="128" comment="Collector code"/>
+        <column xsi:type="varchar" name="category" nullable="false" length="16" comment="performance|errors|sales"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" comment="ok|warning|critical|skipped|timeout"/>
+        <column xsi:type="smallint" name="score" unsigned="true" nullable="true" identity="false" comment="Score 0-100"/>
+        <column xsi:type="json" name="data" nullable="false" comment="Collected data (JSON)"/>
+        <column xsi:type="int" name="ran_ms" unsigned="true" nullable="true" identity="false" comment="Execution time in ms"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="EGSN_SI_COLLECTOR_RESULT_ANALYSIS_ID"
+                    table="egsn_si_collector_result" column="analysis_id"
+                    referenceTable="egsn_si_analysis" referenceColumn="id" onDelete="CASCADE"/>
+        <index referenceId="EGSN_SI_COLLECTOR_RESULT_ANALYSIS_ID" indexType="btree">
+            <column name="analysis_id"/>
+        </index>
+        <index referenceId="EGSN_SI_COLLECTOR_RESULT_COLLECTOR" indexType="btree">
+            <column name="collector"/>
+        </index>
+    </table>
+
+    <table name="egsn_si_recommendation" resource="default" engine="innodb" comment="AI Recommendations">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="int" name="analysis_id" unsigned="true" nullable="false" identity="false" comment="Analysis ID"/>
+        <column xsi:type="varchar" name="collector" nullable="false" length="128" comment="Source collector"/>
+        <column xsi:type="varchar" name="category" nullable="false" length="16" comment="performance|errors|sales"/>
+        <column xsi:type="varchar" name="priority" nullable="false" length="16" comment="critical|warning|improvement"/>
+        <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Short title"/>
+        <column xsi:type="text" name="description" nullable="false" comment="Detailed description"/>
+        <column xsi:type="text" name="action" nullable="false" comment="Recommended action"/>
+        <column xsi:type="varchar" name="estimated_impact" nullable="true" length="255" comment="Estimated impact"/>
+        <column xsi:type="smallint" name="dismissed" unsigned="true" nullable="false" identity="false" default="0" comment="Dismissed flag"/>
+        <column xsi:type="datetime" name="dismissed_at" nullable="true" comment="Dismissed at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="EGSN_SI_RECOMMENDATION_ANALYSIS_ID"
+                    table="egsn_si_recommendation" column="analysis_id"
+                    referenceTable="egsn_si_analysis" referenceColumn="id" onDelete="CASCADE"/>
+        <index referenceId="EGSN_SI_RECOMMENDATION_ANALYSIS_ID" indexType="btree">
+            <column name="analysis_id"/>
+        </index>
+        <index referenceId="EGSN_SI_RECOMMENDATION_PRIORITY" indexType="btree">
+            <column name="priority"/>
+        </index>
+        <index referenceId="EGSN_SI_RECOMMENDATION_DISMISSED" indexType="btree">
+            <column name="dismissed"/>
+        </index>
+    </table>
+
+    <table name="egsn_si_lock" resource="default" engine="innodb" comment="Analysis Lock">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="datetime" name="locked_at" nullable="false" comment="Lock acquired at"/>
+        <column xsi:type="datetime" name="expires_at" nullable="false" comment="Lock expires at"/>
+        <column xsi:type="varchar" name="process_id" nullable="true" length="64" comment="Process identifier"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+    </table>
+
+    <table name="egsn_si_email_log" resource="default" engine="innodb" comment="Email Send Log">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="int" name="analysis_id" unsigned="true" nullable="false" identity="false" comment="Analysis ID"/>
+        <column xsi:type="varchar" name="recipient" nullable="false" length="255" comment="Recipient email"/>
+        <column xsi:type="datetime" name="sent_at" nullable="false" comment="Sent at"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="16" comment="sent|failed"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="EGSN_SI_EMAIL_LOG_ANALYSIS_ID"
+                    table="egsn_si_email_log" column="analysis_id"
+                    referenceTable="egsn_si_analysis" referenceColumn="id" onDelete="CASCADE"/>
+    </table>
+
+</schema>

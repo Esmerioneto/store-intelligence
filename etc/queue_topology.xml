@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Esmerio Neto
+ *
+ * @category Egsn
+ * @package Egsn_StoreIntelligence
+ * @copyright Copyright (c) 2026 Esmerio Neto.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/topology.xsd">
+    <exchange name="egsn.store.intelligence" type="topic" connection="db">
+        <binding id="egsn_si_analysis_run"
+                 destinationType="queue"
+                 destination="egsn.store.intelligence.analysis.run"
+                 topic="egsn.store.intelligence.analysis.run"/>
+    </exchange>
+</config>
