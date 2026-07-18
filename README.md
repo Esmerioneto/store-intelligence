@@ -23,23 +23,23 @@ bin/magento cache:clean
 
 Lojas > Configurações > Egsn > Store Intelligence
 
-| Seção | Campo | Descrição |
-|---|---|---|
-| Geral | Provedor de IA | Claude, OpenAI ou Gemini |
-| Geral | API Key Gemini | Chave do Google AI Studio |
-| Geral | API Key Claude | Chave da API Anthropic |
-| Geral | API Key OpenAI | Chave da API OpenAI |
-| Geral | Escopo da Análise | Global ou restrito a um website (collectors de vendas/pedidos) |
-| Geral | Orçamento mensal de tokens | Limite de tokens de IA por mês; ao atingir, a análise continua sem resumo de IA (0 = sem limite) |
-| Agendamento | Habilitado | Ativa análise automática via cron |
-| Agendamento | Frequência | Diária, semanal ou mensal |
-| Agendamento | Janela de execução | Horário de início/fim (ex: 01:00–05:00) |
-| Limites | Dias sem venda | Threshold para produtos sem venda (padrão: 90 dias) |
-| Limites | Meses inativo | Threshold para clientes inativos (padrão: 12 meses) |
-| Email | Habilitado | Envio de relatório por email após análise |
-| Email | Destinatários | Lista de emails separados por linha |
-| Webhook | Habilitado | POST JSON `{"text": "..."}` ao concluir cada análise (compatível com Slack/Teams) |
-| Webhook | URL | Endpoint do incoming webhook |
+| Seção       | Campo                      | Descrição                                                                                        |
+| ----------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
+| Geral       | Provedor de IA             | Claude, OpenAI ou Gemini                                                                         |
+| Geral       | API Key Gemini             | Chave do Google AI Studio                                                                        |
+| Geral       | API Key Claude             | Chave da API Anthropic                                                                           |
+| Geral       | API Key OpenAI             | Chave da API OpenAI                                                                              |
+| Geral       | Escopo da Análise          | Global ou restrito a um website (collectors de vendas/pedidos)                                   |
+| Geral       | Orçamento mensal de tokens | Limite de tokens de IA por mês; ao atingir, a análise continua sem resumo de IA (0 = sem limite) |
+| Agendamento | Habilitado                 | Ativa análise automática via cron                                                                |
+| Agendamento | Frequência                 | Diária, semanal ou mensal                                                                        |
+| Agendamento | Janela de execução         | Horário de início/fim (ex: 01:00–05:00)                                                          |
+| Limites     | Dias sem venda             | Threshold para produtos sem venda (padrão: 90 dias)                                              |
+| Limites     | Meses inativo              | Threshold para clientes inativos (padrão: 12 meses)                                              |
+| Email       | Habilitado                 | Envio de relatório por email após análise                                                        |
+| Email       | Destinatários              | Lista de emails separados por linha                                                              |
+| Webhook     | Habilitado                 | POST JSON `{"text": "..."}` ao concluir cada análise (compatível com Slack/Teams)                |
+| Webhook     | URL                        | Endpoint do incoming webhook                                                                     |
 
 > **Consumers via cron:** configure o `cron_consumers_runner` no `app/etc/env.php`
 > (`cron_run: true` + `consumers_wait_for_messages: 0`) para o Magento reciclar o
@@ -61,6 +61,7 @@ Lojas > Configurações > Egsn > Store Intelligence
 ## Collectors disponíveis
 
 ### Performance
+
 - OpcacheCollector — status do OPcache
 - CacheHitRatioCollector — taxa de acerto do cache Magento
 - SlowQueriesCollector — queries MySQL lentas
@@ -70,6 +71,7 @@ Lojas > Configurações > Egsn > Store Intelligence
 - ModulePerformanceCollector — módulos com impacto em performance
 
 ### Erros
+
 - ExceptionLogCollector — exceções no exception.log
 - SystemLogCollector — erros no system.log
 - Missing404ImagesCollector — imagens referenciadas mas ausentes
@@ -80,6 +82,7 @@ Lojas > Configurações > Egsn > Store Intelligence
 - IntegrationErrorsCollector — erros em logs de integrações (ERP, API, etc.)
 
 ### Vendas
+
 - AbandonedCartsCollector — carrinhos abandonados
 - ZeroResultSearchesCollector — buscas sem resultado
 - CheckoutFunnelCollector — abandono no funil de checkout
@@ -101,13 +104,31 @@ Lojas > Configurações > Egsn > Store Intelligence
 Todas as mudanças relevantes deste módulo são documentadas neste arquivo.
 O formato segue boas práticas inspiradas em Keep a Changelog e Semantic Versioning.
 
-### [1.1.0] - 2026-07-16
+### [Unreleased]
+
+#### Changed
+
+- Agendamento do cron de análise agora é controlado pelo admin no grupo Agendamento: novos campos "Frequência" (Diária/Semanal/Mensal) e "Horário de Início" definem quando o cron dispara. Campo adicional "Expressão Cron Personalizada" aceita sintaxe crontab completa (`*`, listas, intervalos, steps como `*/5 * * * *` e atalhos `@hourly`/`@daily`/`@weekly`/`@monthly`/`@yearly`) e, quando preenchido, sobrescreve Frequência/Horário; expressões inválidas e `@reboot` são rejeitados na validação. Backend model compõe a expressão e grava em `crontab/default/jobs/egsn_store_intelligence_run/schedule/cron_expr`, consumida via `config_path` no crontab.xml (padrão Magento de cron configurável). Antes o disparo era fixo à 01:00 e janelas fora desse horário nunca executavam.
+
+#### Added
+
+- Nova opção "Cada website separadamente" no Escopo da Análise: cada execução (cron, manual ou API) publica uma mensagem por website e gera N análises por rodada, cada uma restrita ao seu website. O `website_id` viaja no payload da fila e o Orchestrator o usa no lugar do config.
+
 #### Fixed
+
+- Janela de execução (`RunAnalysis`) agora é comparada no timezone da loja, o mesmo usado pelo Magento para o match das expressões cron. Antes o check usava UTC, podendo pular execuções silenciosamente em janelas estreitas.
+
+### [1.1.0] - 2026-07-16
+
+#### Fixed
+
 - **11 collectors que falhavam silenciosamente** em instalações com catalog staging (Adobe Commerce): joins EAV agora usam o `linkField` do `MetadataPool` (`row_id`/`entity_id`), compatível com CE e EE. Afetados: no_sales, least_viewed, cross_sell_opportunities, negative_reviews, missing_images_404, missing_image, missing_description, empty_categories, price_below_cost, out_of_stock (nome), expired_coupons (coluna `uses_total` inexistente → `salesrule_coupon.times_used`).
 - `least_viewed`: coluna `object_id` inexistente em `report_viewed_product_aggregated_daily` → `product_id`.
 - `page_load_time` não valida mais TLS ao medir a própria loja (certificado self-signed de dev impedia a medição).
 - Notas de erro dos collectors agora incluem a mensagem real da exceção (antes só "tables not accessible").
+
 #### Added
+
 - Comando `bin/magento egsn:si:selfcheck`: roda os 30 collectors contra o banco real e retorna exit 1 se algum falhar — pega SQL quebrado que testes unitários (com banco mockado) não detectam.
 - Webhook também notifica análises com falha (consumer e watchdog), incluindo o motivo.
 - Coluna "Escopo" no Histórico (Global ou nome do website) e ID linkando para a nova página de detalhe da análise (status, score, resumo, resultados dos 30 collectors com observações, exportação CSV).
@@ -130,7 +151,9 @@ O formato segue boas práticas inspiradas em Keep a Changelog e Semantic Version
 - Coluna "Análise" na grid de recomendações, identificando de qual análise cada recomendação veio.
 - Ícone SVG próprio (hexágono com circuito, derivado do logo EGSN) no grupo "Egsn" do menu lateral do admin, aplicado via CSS mask com `currentColor`.
 - Link do título da recomendação na listagem para a tela de detalhe.
+
 #### Changed
+
 - ⚠️ Enums do GraphQL (`AnalysisStatus`, `AnalysisCategory`, `RecommendationPriority`) agora em SCREAMING_SNAKE_CASE (`COMPLETED`, `PERFORMANCE`, `CRITICAL`…), conforme o padrão Magento — breaking para clientes GraphQL que usavam valores minúsculos.
 - ⚠️ `AnalysisRepositoryInterface::getById`/`getLatest` retornam `AnalysisInterface` tipada (antes array); `getLatest` lança `NoSuchEntityException` quando não há análise concluída (antes retornava vazio).
 - Conformidade total com o Magento Coding Standard: 0 erros e 0 warnings no PHPCS (docblocks completos, linhas ≤120, `Filesystem`/`Io\File` no lugar de `is_dir`/`basename`; raw SQL dos collectors mantido com `phpcs:disable` justificado).
@@ -138,7 +161,9 @@ O formato segue boas práticas inspiradas em Keep a Changelog e Semantic Version
 - Providers de IA (Claude, OpenAI, Gemini) passam a usar `temperature: 0`, e o prompt instrui a IA a citar somente problemas presentes nos dados — reduz variação e alucinação em resumos/recomendações.
 - Documentação atualizada para incluir o provedor Gemini (Google AI Studio).
 - `db_schema.xml` com `identity="false"` explícito em colunas int/smallint não auto-incremento.
+
 #### Fixed
+
 - Conformidade com o Magento Coding Standard (0 erros no PHPCS): escapes explícitos nos templates, `$escaper` no lugar dos métodos de escape do block, interfaces `HttpGet/HttpPostActionInterface` nos controllers, `AnalysisRepository` migrado para select builder com log de falhas, `EmailNotifier` com `Escaper`, `CsvExporter` com `Filesystem` do framework, remoção de código de debug e dos ui_components/grid collections sem uso, `setup_version` removido do `module.xml` e `dismissRecommendation` retornando o resultado real do update.
 - Ícone fantasma antes de "Dashboard" no menu admin: o id `Egsn_StoreIntelligence::dashboard` gerava a classe CSS `item-dashboard`, que colide com o ícone do Dashboard nativo do tema admin; id do item de menu renomeado para `Egsn_StoreIntelligence::si_dashboard` (recurso de ACL inalterado).
 - Labels de data no gráfico de evolução do score do dashboard (coluna `created_at` ausente no `getList`).
@@ -146,9 +171,22 @@ O formato segue boas práticas inspiradas em Keep a Changelog e Semantic Version
 - Teste unitário do `ClaudeProvider` atualizado para o construtor com `EncryptorInterface`.
 
 ### [1.0.0] - 2026-06-25 - EGSN-0000
+
 #### Added
+
 - Versão inicial do módulo com 30 collectors, integração com Claude e OpenAI, painel administrativo, API REST, GraphQL, cron automático e notificações por email.
 
 ## Licença
 
 [OSL-3.0](https://opensource.org/licenses/OSL-3.0) / [AFL-3.0](https://opensource.org/licenses/AFL-3.0)
+
+## Apoie o projeto
+
+Este módulo é gratuito e mantido nas horas vagas. Se ele te poupou tempo ou dinheiro,
+considere fazer uma doação via PIX:
+
+**Chave PIX (CNPJ):** `49.168.504/0001-04` &nbsp;&nbsp;<img src="docs/img/pix-qrcode.png" alt="QR Code PIX" width="140">
+
+Aponte a câmera do seu banco para o QR Code acima ou use a chave copia-e-cola. Qualquer valor ajuda a manter o desenvolvimento e o suporte ativos. Obrigado! 🙏
+
+Qualquer dúvida ou sugestão, entre em contato pelo email: esmerioneto@gmail.com ou por Whatsapp: +55 (21) 98653-0487

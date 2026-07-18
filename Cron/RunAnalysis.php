@@ -22,7 +22,7 @@ namespace Egsn\StoreIntelligence\Cron;
 
 use Egsn\StoreIntelligence\MessageQueue\Publisher;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 
 class RunAnalysis
 {
@@ -31,12 +31,12 @@ class RunAnalysis
      *
      * @param Publisher $publisher
      * @param ScopeConfigInterface $scopeConfig
-     * @param DateTime $dateTime
+     * @param TimezoneInterface $timezone
      */
     public function __construct(
         private readonly Publisher            $publisher,
         private readonly ScopeConfigInterface $scopeConfig,
-        private readonly DateTime             $dateTime
+        private readonly TimezoneInterface    $timezone
     ) {
     }
 
@@ -65,9 +65,11 @@ class RunAnalysis
      */
     private function isWithinExecutionWindow(): bool
     {
-        $start   = $this->scopeConfig->getValue('egsn_si/schedule/window_start') ?: '01:00';
-        $end     = $this->scopeConfig->getValue('egsn_si/schedule/window_end') ?: '05:00';
-        $current = $this->dateTime->gmtDate('H:i');
+        $start = $this->scopeConfig->getValue('egsn_si/schedule/window_start') ?: '01:00';
+        $end   = $this->scopeConfig->getValue('egsn_si/schedule/window_end') ?: '05:00';
+        // Store timezone: Magento matches cron expressions in the store timezone,
+        // so the window must be compared in the same timezone the admin configured.
+        $current = $this->timezone->date()->format('H:i');
 
         // Supports windows that cross midnight (e.g. 23:00-02:00)
         if ($start <= $end) {

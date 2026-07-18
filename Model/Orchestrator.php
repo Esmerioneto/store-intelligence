@@ -62,9 +62,10 @@ class Orchestrator
      * Run.
      *
      * @param string $triggeredBy
+     * @param int|null $websiteId Explicit website scope (from the queue message); null = use config
      * @return int|null
      */
-    public function run(string $triggeredBy): ?int
+    public function run(string $triggeredBy, ?int $websiteId = null): ?int
     {
         if (!$this->lock->acquire(uniqid('si_', true))) {
             return null;
@@ -75,8 +76,9 @@ class Orchestrator
         $resultTable   = $this->resource->getTableName('egsn_si_collector_result');
         $recTable      = $this->resource->getTableName('egsn_si_recommendation');
 
-        $websiteId = (int) ($this->scopeConfig->getValue('egsn_si/general/website_id') ?: 0);
-        $this->analysisScope->setWebsiteId($websiteId ?: null);
+        $websiteId ??= (int) ($this->scopeConfig->getValue('egsn_si/general/website_id') ?: 0);
+        // Scope -1 ("each website") only reaches here via a stale message without website_id: run as global.
+        $this->analysisScope->setWebsiteId($websiteId > 0 ? $websiteId : null);
 
         try {
             $conn->insert($analysisTable, [

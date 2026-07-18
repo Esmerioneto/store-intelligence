@@ -54,9 +54,10 @@ class Consumer
     {
         $data        = json_decode($message, true);
         $triggeredBy = $data['triggered_by'] ?? 'queue';
+        $websiteId   = isset($data['website_id']) ? (int) $data['website_id'] : null;
 
         try {
-            $id = $this->orchestrator->run($triggeredBy);
+            $id = $this->orchestrator->run($triggeredBy, $websiteId);
             $this->logger->info("[StoreIntelligence] Analysis completed. ID: {$id}");
 
             if ($id !== null) {

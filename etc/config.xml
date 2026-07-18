@@ -20,7 +20,8 @@
             </general>
             <schedule>
                 <enabled>1</enabled>
-                <frequency>daily</frequency>
+                <frequency>D</frequency>
+                <time>01,00,00</time>
                 <window_start>01:00</window_start>
                 <window_end>05:00</window_end>
             </schedule>
@@ -49,5 +50,16 @@
                 <enabled>0</enabled>
             </webhook>
         </egsn_si>
+        <crontab>
+            <default>
+                <jobs>
+                    <egsn_store_intelligence_run>
+                        <schedule>
+                            <cron_expr>0 1 * * *</cron_expr>
+                        </schedule>
+                    </egsn_store_intelligence_run>
+                </jobs>
+            </default>
+        </crontab>
     </default>
 </config>

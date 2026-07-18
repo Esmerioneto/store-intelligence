@@ -41,7 +41,10 @@ class Website implements OptionSourceInterface
      */
     public function toOptionArray(): array
     {
-        $options = [['value' => 0, 'label' => __('All websites (global)')]];
+        $options = [
+            ['value' => 0, 'label' => __('All websites (global)')],
+            ['value' => -1, 'label' => __('Each website separately')],
+        ];
         foreach ($this->storeManager->getWebsites() as $website) {
             $options[] = ['value' => (int) $website->getId(), 'label' => $website->getName()];
         }

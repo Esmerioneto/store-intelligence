@@ -14,7 +14,7 @@
         <job name="egsn_store_intelligence_run"
              instance="Egsn\StoreIntelligence\Cron\RunAnalysis"
              method="execute">
-            <schedule>0 1 * * *</schedule>
+            <config_path>crontab/default/jobs/egsn_store_intelligence_run/schedule/cron_expr</config_path>
         </job>
         <job name="egsn_store_intelligence_cleanup"
              instance="Egsn\StoreIntelligence\Cron\GarbageCollection"
