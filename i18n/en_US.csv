@@ -165,7 +165,29 @@
 "The analysis cron runs at the Start Time: daily, every Monday, or on the 1st of each month (store timezone).","The analysis cron runs at the Start Time: daily, every Monday, or on the 1st of each month (store timezone)."
 "Start Time","Start Time"
 "Custom Cron Expression","Custom Cron Expression"
-"Optional: overrides Frequency and Start Time. Full crontab syntax: * (any), , (list), - (range), / (step) and @hourly, @daily, @weekly, @monthly, @yearly. Example: */5 * * * * runs every 5 minutes. @reboot is not supported.","Optional: overrides Frequency and Start Time. Full crontab syntax: * (any), , (list), - (range), / (step) and @hourly, @daily, @weekly, @monthly, @yearly. Example: */5 * * * * runs every 5 minutes. @reboot is not supported."
+"Optional: overrides Frequency and Start Time. Accepts full crontab syntax (* any, , list, - range, / step) and @hourly/@daily/@weekly/@monthly/@yearly shortcuts (@reboot is not supported).
+<pre>
+* * * * *
+| | | | |
+| | | | +---- Day of the Week   (range: 0-6, 0 = Sunday, 1 = Monday)
+| | | +------ Month             (range: 1-12)
+| | +-------- Day of the Month  (range: 1-31)
+| +---------- Hour              (range: 0-23)
++------------ Minute            (range: 0-59)
+Example: */5 * * * *  runs every 5 minutes
+Example: 0 0 * * *    runs daily at midnight
+</pre>","Optional: overrides Frequency and Start Time. Accepts full crontab syntax (* any, , list, - range, / step) and @hourly/@daily/@weekly/@monthly/@yearly shortcuts (@reboot is not supported).
+<pre>
+* * * * *
+| | | | |
+| | | | +---- Day of the Week   (range: 0-6, 0 = Sunday, 1 = Monday)
+| | | +------ Month             (range: 1-12)
+| | +-------- Day of the Month  (range: 1-31)
+| +---------- Hour              (range: 0-23)
++------------ Minute            (range: 0-59)
+Example: */5 * * * *  runs every 5 minutes
+Example: 0 0 * * *    runs daily at midnight
+</pre>"
 "@reboot is not supported: Magento cron has no boot event. Use a periodic expression.","@reboot is not supported: Magento cron has no boot event. Use a periodic expression."
 "Unknown cron shortcut ""%1"".","Unknown cron shortcut ""%1""."
 "Invalid cron expression ""%1"": expected 5 or 6 space-separated fields.","Invalid cron expression ""%1"": expected 5 or 6 space-separated fields."

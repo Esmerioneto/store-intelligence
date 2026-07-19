@@ -85,7 +85,18 @@
                 <field id="cron_expr" translate="label comment" type="text" sortOrder="17" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Custom Cron Expression</label>
                     <backend_model>Egsn\StoreIntelligence\Model\Config\Backend\CronConfig</backend_model>
-                    <comment>Optional: overrides Frequency and Start Time. Full crontab syntax: * (any), , (list), - (range), / (step) and @hourly, @daily, @weekly, @monthly, @yearly. Example: */5 * * * * runs every 5 minutes. @reboot is not supported.</comment>
+                    <comment><![CDATA[Optional: overrides Frequency and Start Time. Accepts full crontab syntax (* any, , list, - range, / step) and @hourly/@daily/@weekly/@monthly/@yearly shortcuts (@reboot is not supported).
+<pre>
+* * * * *
+| | | | |
+| | | | +---- Day of the Week   (range: 0-6, 0 = Sunday, 1 = Monday)
+| | | +------ Month             (range: 1-12)
+| | +-------- Day of the Month  (range: 1-31)
+| +---------- Hour              (range: 0-23)
++------------ Minute            (range: 0-59)
+Example: */5 * * * *  runs every 5 minutes
+Example: 0 0 * * *    runs daily at midnight
+</pre>]]></comment>
                 </field>
                 <field id="window_start" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Window Start (HH:MM)</label>
